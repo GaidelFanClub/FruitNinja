@@ -8,7 +8,9 @@ public interface Projectile {
     boolean hasMovedOffScreen();
 
     void kill();
+
     void move();
+
     void draw(Canvas canvas);
 
     Rect getLocation();
