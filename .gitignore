@@ -20,3 +20,8 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+.gradle/
+app/build/
+build/
+gradle/
+.idea/
