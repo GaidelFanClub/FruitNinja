@@ -1,8 +1,7 @@
 package dev.emmaguy.fruitninja;
 
 import android.graphics.Canvas;
-
-import java.util.List;
+import android.support.v4.util.SparseArrayCompat;
 
 public interface ProjectileManager {
     void draw(Canvas c);
@@ -11,5 +10,5 @@ public interface ProjectileManager {
 
     void setWidthAndHeight(int width, int height);
 
-    int testForCollisions(List<TimedPath> allPaths);
+    int testForCollisions(SparseArrayCompat<TimedPath> path);
 }

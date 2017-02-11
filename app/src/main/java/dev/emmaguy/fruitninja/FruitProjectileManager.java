@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
 import android.graphics.Region;
+import android.support.v4.util.SparseArrayCompat;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
@@ -24,10 +25,18 @@ public class FruitProjectileManager implements ProjectileManager {
 
     public FruitProjectileManager(Resources r) {
 
-        bitmapCache = new SparseArray<Bitmap>(FruitType.values().length);
+        bitmapCache = new SparseArray<>(FruitType.values().length);
 
         for (FruitType t : FruitType.values()) {
-            bitmapCache.put(t.getResourceId(), BitmapFactory.decodeResource(r, t.getResourceId(), new Options()));
+            Options options = new Options();
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeResource(r, t.getResourceId(), new Options());
+
+            options.inPreferredConfig = Bitmap.Config.RGB_565;
+            options.inJustDecodeBounds = false;
+            options.inSampleSize = 2;
+
+            bitmapCache.put(t.getResourceId(), BitmapFactory.decodeResource(r, t.getResourceId(), options));
         }
     }
 
@@ -43,7 +52,7 @@ public class FruitProjectileManager implements ProjectileManager {
             return;
         }
 
-        if (random.nextInt(1000) <= 30) {
+        if (random.nextInt(1000) <= 60) {
             fruitProjectiles.add(createNewFruitProjectile());
         }
 
@@ -79,23 +88,17 @@ public class FruitProjectileManager implements ProjectileManager {
         this.maxWidth = width;
         this.maxHeight = height;
         this.clip = new Region(0, 0, width, height);
+        IntersectionUtils.init(width, height);
     }
 
     @Override
-    public int testForCollisions(List<TimedPath> allPaths) {
+    public int testForCollisions(SparseArrayCompat<TimedPath> allPaths) {
 
         int score = 0;
-        for (TimedPath p : allPaths) {
+        for (int i = 0; i < allPaths.size(); i++) {
             for (Projectile f : fruitProjectiles) {
-
-                if (!f.isAlive())
-                    continue;
-
-                Region projectile = new Region(f.getLocation());
-                Region path = new Region();
-                path.setPath(p, clip);
-
-                if (!projectile.quickReject(path) && projectile.op(path, Region.Op.INTERSECT)) {
+                if (!f.isAlive()) continue;
+                if (IntersectionUtils.intersect(f.getLocation(), allPaths.valueAt(i).get())) {
                     f.kill();
                     score++;
                 }

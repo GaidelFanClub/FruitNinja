@@ -8,8 +8,6 @@ import android.support.v4.util.SparseArrayCompat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -58,7 +56,7 @@ public class GameThread implements Runnable {
         this.isRunning = true;
         this.projectileManager.setWidthAndHeight(width, height);
         this.timer.startGame();
-        this.self = executor.scheduleAtFixedRate(this, 0, 10, TimeUnit.MILLISECONDS);
+        this.self = executor.scheduleAtFixedRate(this, 0, 17, TimeUnit.MILLISECONDS);
 
         this.scorePaint.setColor(Color.MAGENTA);
         this.scorePaint.setAntiAlias(true);
@@ -89,11 +87,7 @@ public class GameThread implements Runnable {
                     projectileManager.update();
 
                     if (paths != null && paths.size() > 0) {
-                        List<TimedPath> allPaths = new ArrayList<TimedPath>();
-                        for (int i = 0; i < paths.size(); i++) {
-                            allPaths.add(paths.valueAt(i));
-                        }
-                        score += projectileManager.testForCollisions(allPaths);
+                        score += projectileManager.testForCollisions(paths);
                     }
 
                     canvas = surfaceHolder.lockCanvas();
@@ -107,8 +101,8 @@ public class GameThread implements Runnable {
 
                             if (paths != null) {
                                 for (int i = 0; i < paths.size(); i++) {
-                                    canvas.drawPath(paths.valueAt(i), linePaintBlur);
-                                    canvas.drawPath(paths.valueAt(i), linePaint);
+                                    canvas.drawPath(paths.valueAt(i).get(), linePaintBlur);
+                                    canvas.drawPath(paths.valueAt(i).get(), linePaint);
 
                                     if (paths.valueAt(i).getTimeDrawn() + 500 < System.currentTimeMillis()) {
                                         paths.removeAt(i);

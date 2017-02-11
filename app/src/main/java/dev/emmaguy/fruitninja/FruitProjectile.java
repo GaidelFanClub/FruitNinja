@@ -88,9 +88,12 @@ public class FruitProjectile implements Projectile {
         }
     }
 
+    private Rect reuseRect = new Rect();
+
     @Override
     public Rect getLocation() {
-        return new Rect(xLocation, absYLocation, xLocation + b.getWidth(), absYLocation + b.getHeight());
+        reuseRect.set(xLocation, absYLocation, xLocation + b.getWidth(), absYLocation + b.getHeight());
+        return reuseRect;
     }
 
     @Override

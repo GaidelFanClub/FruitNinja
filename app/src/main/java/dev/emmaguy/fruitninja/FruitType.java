@@ -3,10 +3,10 @@ package dev.emmaguy.fruitninja;
 import java.util.Random;
 
 public enum FruitType {
-    WATERMELON(R.drawable.watermelon), STRAWBERRY(R.drawable.strawberry),
-    PINEAPPLE(R.drawable.pineapple), PAPAYA(R.drawable.papaya),
-    GRAPES(R.drawable.grape), APPLE(R.drawable.apple),
-    BANANA(R.drawable.banana), ORANGE(R.drawable.orange);
+    WATERMELON(R.drawable.upgrade_displeased), STRAWBERRY(R.drawable.upgrade_evil),
+    PINEAPPLE(R.drawable.upgrade_evil_2), PAPAYA(R.drawable.upgrade_kind),
+    GRAPES(R.drawable.upgrade_old), APPLE(R.drawable.upgrade_sad),
+    BANANA(R.drawable.upgrade_simple);
 
     private final int resourceId;
 
