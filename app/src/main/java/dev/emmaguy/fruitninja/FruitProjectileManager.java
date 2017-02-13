@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Canvas;
-import android.graphics.Region;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.SparseArray;
 
@@ -17,15 +16,16 @@ import java.util.Random;
 public class FruitProjectileManager implements ProjectileManager {
 
     private final Random random = new Random();
-    private final List<Projectile> fruitProjectiles = new ArrayList<Projectile>();
+    private final List<Projectile> fruitProjectiles = new ArrayList<>();
     private final SparseArray<Bitmap> bitmapCache;
-    private Region clip;
+    private final SparseArray<Bitmap> deadBitmapCache;
     private int maxWidth;
     private int maxHeight;
 
     public FruitProjectileManager(Resources r) {
 
         bitmapCache = new SparseArray<>(FruitType.values().length);
+        deadBitmapCache = new SparseArray<>(FruitType.values().length);
 
         for (FruitType t : FruitType.values()) {
             Options options = new Options();
@@ -36,7 +36,9 @@ public class FruitProjectileManager implements ProjectileManager {
             options.inJustDecodeBounds = false;
             options.inSampleSize = 2;
 
-            bitmapCache.put(t.getResourceId(), BitmapFactory.decodeResource(r, t.getResourceId(), options));
+            Bitmap bitmap = BitmapFactory.decodeResource(r, t.getResourceId(), options);
+            bitmapCache.put(t.getResourceId(), bitmap);
+            deadBitmapCache.put(t.getResourceId(), ImageUtils.createDeadBitmap(bitmap));
         }
     }
 
@@ -80,14 +82,16 @@ public class FruitProjectileManager implements ProjectileManager {
             rotationIncrement *= -1;
         }
 
-        return new FruitProjectile(bitmapCache.get(FruitType.randomFruit().getResourceId()), maxWidth, maxHeight,
+        FruitType type = FruitType.randomFruit();
+        return new FruitProjectile(bitmapCache.get(type.getResourceId()),
+                deadBitmapCache.get(type.getResourceId()),
+                maxWidth, maxHeight,
                 angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle);
     }
 
     public void setWidthAndHeight(int width, int height) {
         this.maxWidth = width;
         this.maxHeight = height;
-        this.clip = new Region(0, 0, width, height);
         IntersectionUtils.init(width, height);
     }
 

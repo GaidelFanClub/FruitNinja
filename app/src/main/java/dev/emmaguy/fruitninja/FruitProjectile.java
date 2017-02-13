@@ -8,11 +8,11 @@ import android.graphics.Rect;
 
 public class FruitProjectile implements Projectile {
 
-    private final Bitmap[] splitFruit = new Bitmap[2];
     private final Paint paint = new Paint();
     private final Matrix m = new Matrix();
 
-    private final Bitmap b;
+    private final Bitmap aliveBitmap;
+    private final Bitmap deadBitmap;
     private final float rotationIncrement;
 
     private float gravity;
@@ -30,9 +30,10 @@ public class FruitProjectile implements Projectile {
     private boolean rightToLeft;
     private boolean isAlive = true;
 
-    public FruitProjectile(Bitmap b, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
+    public FruitProjectile(Bitmap aliveBitmap, Bitmap deadBitmap, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
                            boolean rightToLeft, float rotationIncrement, float rotationStartingAngle) {
-        this.b = b;
+        this.aliveBitmap = aliveBitmap;
+        this.deadBitmap = deadBitmap;
         this.maxHeight = maxHeight;
         this.angle = angle;
         this.initialSpeed = initialSpeed;
@@ -47,7 +48,7 @@ public class FruitProjectile implements Projectile {
 
     @Override
     public boolean hasMovedOffScreen() {
-        return yLocation < 0 || xLocation + b.getWidth() < 0 || xLocation > maxWidth;
+        return yLocation < 0 || xLocation + aliveBitmap.getWidth() < 0 || xLocation > maxWidth;
     }
 
     @Override
@@ -58,8 +59,9 @@ public class FruitProjectile implements Projectile {
             yLocation = (int) (initialSpeed * Math.sin(angle * Math.PI / 180) * time - 0.5 * gravity * time * time);
 
             if (rightToLeft) {
-                xLocation = maxWidth - b.getWidth() - xLocation;
+                xLocation = maxWidth - aliveBitmap.getWidth() - xLocation;
             }
+            rotationAngle += rotationIncrement;
         } else {
             yLocation -= time * (fallingVelocity + time * gravity / 2);
             fallingVelocity += time * gravity;
@@ -73,26 +75,19 @@ public class FruitProjectile implements Projectile {
 
     @Override
     public void draw(Canvas canvas) {
+        m.reset();
+        m.postTranslate(-aliveBitmap.getWidth() / 2, -aliveBitmap.getHeight() / 2);
+        m.postRotate(rotationAngle);
+        m.postTranslate(xLocation + (aliveBitmap.getWidth() / 2), absYLocation + (aliveBitmap.getHeight() / 2));
 
-        if (isAlive) {
-            m.reset();
-            m.postTranslate(-b.getWidth() / 2, -b.getHeight() / 2);
-            m.postRotate(rotationAngle);
-            m.postTranslate(xLocation + (b.getWidth() / 2), absYLocation + (b.getHeight() / 2));
-            rotationAngle += rotationIncrement;
-
-            canvas.drawBitmap(b, m, paint);
-        } else {
-            canvas.drawBitmap(splitFruit[0], xLocation, absYLocation, paint);
-            canvas.drawBitmap(splitFruit[1], xLocation + b.getWidth() / 2 + 5, absYLocation, paint);
-        }
+        canvas.drawBitmap(isAlive ? aliveBitmap : deadBitmap, m, paint);
     }
 
     private Rect reuseRect = new Rect();
 
     @Override
     public Rect getLocation() {
-        reuseRect.set(xLocation, absYLocation, xLocation + b.getWidth(), absYLocation + b.getHeight());
+        reuseRect.set(xLocation, absYLocation, xLocation + aliveBitmap.getWidth(), absYLocation + aliveBitmap.getHeight());
         return reuseRect;
     }
 
@@ -101,9 +96,6 @@ public class FruitProjectile implements Projectile {
         this.gravity /= 12.0f;
         this.time = 0.0f;
         this.isAlive = false;
-
-        splitFruit[0] = Bitmap.createBitmap(b, 0, 0, b.getWidth() / 2, b.getHeight(), m, true);
-        splitFruit[1] = Bitmap.createBitmap(b, b.getWidth() / 2, 0, b.getWidth() / 2, b.getHeight(), m, true);
     }
 
     @Override
