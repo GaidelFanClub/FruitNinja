@@ -104,7 +104,7 @@ public class GameThread implements Runnable {
                                     canvas.drawPath(paths.valueAt(i).get(), linePaintBlur);
                                     canvas.drawPath(paths.valueAt(i).get(), linePaint);
 
-                                    if (paths.valueAt(i).getTimeDrawn() + 500 < System.currentTimeMillis()) {
+                                    if (paths.valueAt(i).getTimeDrawn() + 100 < System.currentTimeMillis()) {
                                         paths.removeAt(i);
                                     }
                                 }

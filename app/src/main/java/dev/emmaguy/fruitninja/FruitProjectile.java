@@ -18,31 +18,37 @@ public class FruitProjectile implements Projectile {
     private float gravity;
     private final int maxWidth;
     private final int maxHeight;
-    private final int angle;
+    private final double angleCos;
+    private final double angleSin;
     private final int initialSpeed;
 
     private int xLocation;
     private int yLocation;
     private int absYLocation;
     private float rotationAngle;
-    private float time = 0.0f;
+    private double time = 0;
+    private long lastTimeStamp;
     private float fallingVelocity = 1.0f;
     private boolean rightToLeft;
     private boolean isAlive = true;
+    private int xShift;
 
     public FruitProjectile(Bitmap aliveBitmap, Bitmap deadBitmap, int maxWidth, int maxHeight, int angle, int initialSpeed, float gravity,
-                           boolean rightToLeft, float rotationIncrement, float rotationStartingAngle) {
+                           boolean rightToLeft, float rotationIncrement, float rotationStartingAngle, int xShift) {
         this.aliveBitmap = aliveBitmap;
         this.deadBitmap = deadBitmap;
         this.maxHeight = maxHeight;
-        this.angle = angle;
+        this.angleCos = Math.cos(Math.toRadians(angle));
+        this.angleSin = Math.sin(Math.toRadians(angle));
         this.initialSpeed = initialSpeed;
         this.gravity = gravity;
         this.maxWidth = maxWidth;
         this.rightToLeft = rightToLeft;
         this.rotationIncrement = rotationIncrement;
         this.rotationAngle = rotationStartingAngle;
+        this.xShift = xShift;
 
+        lastTimeStamp = System.currentTimeMillis();
         paint.setAntiAlias(true);
     }
 
@@ -55,11 +61,13 @@ public class FruitProjectile implements Projectile {
     public void move() {
 
         if (isAlive) {
-            xLocation = (int) (initialSpeed * Math.cos(angle * Math.PI / 180) * time);
-            yLocation = (int) (initialSpeed * Math.sin(angle * Math.PI / 180) * time - 0.5 * gravity * time * time);
+            xLocation = (int) (initialSpeed * angleCos * time);
+            yLocation = (int) (initialSpeed * angleSin * time - 0.5 * gravity * time * time);
 
             if (rightToLeft) {
-                xLocation = maxWidth - aliveBitmap.getWidth() - xLocation;
+                xLocation = maxWidth - xShift - aliveBitmap.getWidth() - xLocation;
+            } else {
+                xLocation += xShift;
             }
             rotationAngle += rotationIncrement;
         } else {
@@ -70,7 +78,8 @@ public class FruitProjectile implements Projectile {
         // 0,0 is top left, we want the parabola to go the other way up
         absYLocation = (yLocation * -1) + maxHeight;
 
-        time += 0.1f;
+        time += (System.currentTimeMillis() - lastTimeStamp) * 1e-2;
+        lastTimeStamp = System.currentTimeMillis();
     }
 
     @Override

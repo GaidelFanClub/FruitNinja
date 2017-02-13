@@ -18,7 +18,6 @@ import dev.emmaguy.fruitninja.ui.GameFragment.OnGameOver;
 public class GameSurfaceView extends SurfaceView implements OnTouchListener, SurfaceHolder.Callback {
 
     private GameThread gameThread;
-    private ProjectileManager projectileManager;
     private OnGameOver gameOverListener;
     private boolean isGameInitialised = false;
     private final SparseArrayCompat<TimedPath> paths = new SparseArrayCompat<TimedPath>();
@@ -89,8 +88,7 @@ public class GameSurfaceView extends SurfaceView implements OnTouchListener, Sur
             gameThread.resumeGame(width, height);
         } else {
             isGameInitialised = true;
-            projectileManager = new FruitProjectileManager(getResources());
-            gameThread = new GameThread(getHolder(), projectileManager, gameOverListener);
+            gameThread = new GameThread(getHolder(), new FruitProjectileManager(getResources()), gameOverListener);
             gameThread.startGame(width, height);
         }
     }

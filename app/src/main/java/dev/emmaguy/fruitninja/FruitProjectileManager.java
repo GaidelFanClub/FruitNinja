@@ -21,6 +21,8 @@ public class FruitProjectileManager implements ProjectileManager {
     private final SparseArray<Bitmap> deadBitmapCache;
     private int maxWidth;
     private int maxHeight;
+    private int maxFruittilesAllowed = 1;
+    private int alreadyThrown = 0;
 
     public FruitProjectileManager(Resources r) {
 
@@ -49,13 +51,16 @@ public class FruitProjectileManager implements ProjectileManager {
     }
 
     public void update() {
-
         if (maxWidth < 0 || maxHeight < 0) {
             return;
         }
 
-        if (random.nextInt(1000) <= 60) {
+        if (random.nextInt(1000) <= 60 && fruitProjectiles.size() < maxFruittilesAllowed) {
             fruitProjectiles.add(createNewFruitProjectile());
+            alreadyThrown++;
+        }
+        if (random.nextInt(10000) <= 10 || alreadyThrown >= maxFruittilesAllowed * maxFruittilesAllowed * 5) {
+            maxFruittilesAllowed++;
         }
 
         for (Iterator<Projectile> iter = fruitProjectiles.iterator(); iter.hasNext(); ) {
@@ -71,22 +76,24 @@ public class FruitProjectileManager implements ProjectileManager {
 
     private FruitProjectile createNewFruitProjectile() {
         int angle = random.nextInt(20) + 70;
-        int speed = random.nextInt(30) + 120;
+        int speed = random.nextInt(30) + 140;
         boolean rightToLeft = random.nextBoolean();
 
         float gravity = random.nextInt(6) + 14.0f;
         float rotationStartingAngle = random.nextInt(360);
         float rotationIncrement = random.nextInt(100) / 10.0f;
-
         if (random.nextBoolean()) {
             rotationIncrement *= -1;
         }
+        
+        int xShift = random.nextInt(maxWidth / 2);
 
         FruitType type = FruitType.randomFruit();
         return new FruitProjectile(bitmapCache.get(type.getResourceId()),
+
                 deadBitmapCache.get(type.getResourceId()),
                 maxWidth, maxHeight,
-                angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle);
+                angle, speed, gravity, rightToLeft, rotationIncrement, rotationStartingAngle, xShift);
     }
 
     public void setWidthAndHeight(int width, int height) {

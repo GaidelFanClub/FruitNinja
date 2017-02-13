@@ -21,5 +21,4 @@ public class IntersectionUtils {
         return !region.quickReject(path) && region.op(path, Region.Op.INTERSECT);
     }
 
-
 }
