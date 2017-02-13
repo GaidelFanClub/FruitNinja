@@ -76,7 +76,7 @@ public class FruitProjectileManager implements ProjectileManager {
         float rotationStartingAngle = random.nextInt(360);
         float rotationIncrement = random.nextInt(100) / 10.0f;
 
-        if (random.nextInt(1) % 2 == 0) {
+        if (random.nextBoolean()) {
             rotationIncrement *= -1;
         }
 
